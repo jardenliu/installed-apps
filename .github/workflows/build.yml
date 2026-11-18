@@ -1,0 +1,150 @@
+# Multi-platform build & npm publish for the Node.js / Bun binding.
+#
+# - Every push / PR builds all six targets and runs the smoke test on the
+#   runner's own architecture.
+# - Linux targets are built with cargo-zigbuild (glibc >= 2.17, works on
+#   CentOS 7+ / Ubuntu 16.04+; independent of runner image glibc).
+# - Pushing a tag `v*` publishes the platform packages + the root package to
+#   npm (requires the repository secret NPM_TOKEN).
+name: Build & Publish
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: ${{ matrix.settings.target }}
+    runs-on: ${{ matrix.settings.host }}
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - host: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: installed-apps.win32-x64-msvc.node
+            build: napi
+            smoke: true
+          - host: windows-11-arm
+            target: aarch64-pc-windows-msvc
+            artifact: installed-apps.win32-arm64-msvc.node
+            build: napi
+            smoke: true
+          - host: macos-latest
+            target: aarch64-apple-darwin
+            artifact: installed-apps.darwin-arm64.node
+            build: napi
+            smoke: true
+          - host: macos-latest
+            target: x86_64-apple-darwin
+            artifact: installed-apps.darwin-x64.node
+            build: napi
+            smoke: false # cross-built on an arm64 runner
+          - host: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact: installed-apps.linux-x64-gnu.node
+            build: zig
+            smoke: true
+          - host: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            artifact: installed-apps.linux-arm64-gnu.node
+            build: zig
+            smoke: true
+    defaults:
+      run:
+        working-directory: bindings/node
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.settings.target }}
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      # Windows / macOS: plain napi build (Apple x64<->arm64 cross-compiles
+      # with just the rustup target installed).
+      - name: Build (napi)
+        if: matrix.settings.build == 'napi'
+        run: npx napi build --platform --release --target ${{ matrix.settings.target }}
+
+      # Linux: cargo-zigbuild for a glibc 2.17 baseline.
+      - name: Install cargo-zigbuild
+        if: matrix.settings.build == 'zig'
+        run: |
+          python3 -m pip install ziglang
+          cargo install cargo-zigbuild --locked
+
+      - name: Build (cargo-zigbuild)
+        if: matrix.settings.build == 'zig'
+        run: |
+          cargo zigbuild --target ${{ matrix.settings.target }} -p installed-apps-node --release --manifest-path ../../Cargo.toml
+          cp ../../target/${{ matrix.settings.target }}/release/libinstalled_apps_node.so ${{ matrix.settings.artifact }}
+
+      - name: Smoke test
+        if: matrix.settings.smoke
+        run: node test.mjs
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binding-${{ matrix.settings.target }}
+          path: bindings/node/${{ matrix.settings.artifact }}
+          if-no-files-found: error
+
+  publish:
+    name: Publish to npm
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    defaults:
+      run:
+        working-directory: bindings/node
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Download all binding artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Prepare platform packages
+        run: |
+          npx napi create-npm-dirs
+          npx napi artifacts --output-dir "$GITHUB_WORKSPACE/artifacts" --npm-dir ./npm
+          npx napi pre-publish --skip-optional-publish
+
+      - name: Publish platform packages
+        run: |
+          for d in npm/*/; do
+            echo "publishing $d"
+            npm publish "$d" --access public
+          done
+
+      - name: Publish root package
+        run: npm publish --access public

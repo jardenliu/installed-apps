@@ -1,0 +1,22 @@
+{
+  "name": "installed-apps-win32-arm64-msvc",
+  "version": "0.1.0",
+  "cpu": [
+    "arm64"
+  ],
+  "main": "installed-apps.win32-arm64-msvc.node",
+  "files": [
+    "installed-apps.win32-arm64-msvc.node"
+  ],
+  "description": "Cross-platform installed application scanner (Windows / Linux / macOS) with file-association lookup and PNG icons — Node.js / Bun bindings",
+  "license": "MIT",
+  "engines": {
+    "node": ">= 14"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "os": [
+    "win32"
+  ]
+}
