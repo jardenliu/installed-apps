@@ -133,16 +133,20 @@ jobs:
           path: artifacts
           merge-multiple: true
 
-      - name: Install npm dependencies
-        run: npm ci
+      # The publish job only needs the napi CLI. Installing the project's
+      # dependency tree via `npm ci` would fail: the optionalDependencies are
+      # our own not-yet-published platform packages, which no lockfile can
+      # resolve before the first release.
+      - name: Install @napi-rs/cli
+        run: npm install -g @napi-rs/cli@3.10.12
 
       - name: Prepare platform packages
         run: |
-          npx napi create-npm-dirs
-          npx napi artifacts --output-dir "$GITHUB_WORKSPACE/artifacts" --npm-dir ./npm
+          napi create-npm-dirs
+          napi artifacts --output-dir "$GITHUB_WORKSPACE/artifacts" --npm-dir ./npm
           # --tag-style npm: take the release version from the v* tag
           # (the default "lerna" style parses release-commit messages instead).
-          npx napi pre-publish --skip-optional-publish --tag-style npm
+          napi pre-publish --skip-optional-publish --tag-style npm
           # Trusted Publishing verifies that repository.url matches the GitHub
           # repo; enforce it on every manifest in case tooling rewrote them.
           node -e '
