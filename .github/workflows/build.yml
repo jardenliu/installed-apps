@@ -112,8 +112,8 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
       contents: write # create the GitHub Release for the tag
+      id-token: write # npm Trusted Publishing (OIDC) — no token needed
     env:
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     defaults:
       run:
@@ -121,11 +121,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Trusted Publishing requires npm >= 11.5.1 (bundled with Node 24).
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org
+          node-version: 24
 
       - name: Download all binding artifacts
         uses: actions/download-artifact@v4
@@ -143,6 +143,17 @@ jobs:
           # --tag-style npm: take the release version from the v* tag
           # (the default "lerna" style parses release-commit messages instead).
           npx napi pre-publish --skip-optional-publish --tag-style npm
+          # Trusted Publishing verifies that repository.url matches the GitHub
+          # repo; enforce it on every manifest in case tooling rewrote them.
+          node -e '
+            const fs = require("fs");
+            const repo = { type: "git", url: "git+https://github.com/jardenliu/installed-apps.git" };
+            for (const f of ["package.json", ...fs.readdirSync("npm").map(d => "npm/" + d + "/package.json")]) {
+              const j = JSON.parse(fs.readFileSync(f, "utf8"));
+              j.repository = repo;
+              fs.writeFileSync(f, JSON.stringify(j, null, 2) + "\n");
+            }
+          '
 
       - name: Publish platform packages
         run: |
