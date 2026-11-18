@@ -157,10 +157,27 @@ jobs:
 
       - name: Publish platform packages
         run: |
+          # Dual-mode auth: a configured NPM_TOKEN is used for the very first
+          # release (new packages cannot use Trusted Publishing before they
+          # exist on npm); afterwards unset the secret and publishing falls
+          # back to OIDC Trusted Publishing automatically.
+          if [ -n "$NODE_AUTH_TOKEN" ]; then
+            echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
+          fi
           for d in npm/*/; do
             echo "publishing $d"
             npm publish "$d" --access public
           done
+          rm -f .npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish root package
-        run: npm publish --access public
+        run: |
+          if [ -n "$NODE_AUTH_TOKEN" ]; then
+            echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
+          fi
+          npm publish --access public
+          rm -f .npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
