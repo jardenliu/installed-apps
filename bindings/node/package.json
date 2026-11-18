@@ -1,6 +1,6 @@
 {
   "name": "installed-apps-scanner",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Cross-platform installed application scanner (Windows / Linux / macOS) with file-association lookup and PNG icons — Node.js / Bun bindings",
   "main": "index.js",
   "types": "index.d.ts",
@@ -32,12 +32,12 @@
     "packageName": "installed-apps-scanner"
   },
   "optionalDependencies": {
-    "installed-apps-scanner-win32-x64-msvc": "0.1.0",
-    "installed-apps-scanner-win32-arm64-msvc": "0.1.0",
-    "installed-apps-scanner-darwin-x64": "0.1.0",
-    "installed-apps-scanner-darwin-arm64": "0.1.0",
-    "installed-apps-scanner-linux-x64-gnu": "0.1.0",
-    "installed-apps-scanner-linux-arm64-gnu": "0.1.0"
+    "installed-apps-scanner-win32-x64-msvc": "0.2.0",
+    "installed-apps-scanner-win32-arm64-msvc": "0.2.0",
+    "installed-apps-scanner-darwin-x64": "0.2.0",
+    "installed-apps-scanner-darwin-arm64": "0.2.0",
+    "installed-apps-scanner-linux-x64-gnu": "0.2.0",
+    "installed-apps-scanner-linux-arm64-gnu": "0.2.0"
   },
   "publishConfig": {
     "access": "public"
