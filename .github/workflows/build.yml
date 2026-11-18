@@ -110,8 +110,11 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write # create the GitHub Release for the tag
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     defaults:
       run:
         working-directory: bindings/node
@@ -137,7 +140,9 @@ jobs:
         run: |
           npx napi create-npm-dirs
           npx napi artifacts --output-dir "$GITHUB_WORKSPACE/artifacts" --npm-dir ./npm
-          npx napi pre-publish --skip-optional-publish
+          # --tag-style npm: take the release version from the v* tag
+          # (the default "lerna" style parses release-commit messages instead).
+          npx napi pre-publish --skip-optional-publish --tag-style npm
 
       - name: Publish platform packages
         run: |
