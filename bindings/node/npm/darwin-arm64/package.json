@@ -1,5 +1,5 @@
 {
-  "name": "installed-apps-darwin-arm64",
+  "name": "installed-apps-scanner-darwin-arm64",
   "version": "0.1.0",
   "cpu": [
     "arm64"

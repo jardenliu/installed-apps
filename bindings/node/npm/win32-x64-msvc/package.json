@@ -1,5 +1,5 @@
 {
-  "name": "installed-apps-win32-x64-msvc",
+  "name": "installed-apps-scanner-win32-x64-msvc",
   "version": "0.1.0",
   "cpu": [
     "x64"

@@ -1,5 +1,5 @@
 {
-  "name": "installed-apps-linux-arm64-gnu",
+  "name": "installed-apps-scanner-linux-arm64-gnu",
   "version": "0.1.0",
   "cpu": [
     "arm64"

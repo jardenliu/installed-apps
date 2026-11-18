@@ -104,7 +104,7 @@ node test.mjs      # 冒烟测试(或 bun test.mjs)
 
 ```js
 // Node.js (CJS/ESM) 与 Bun 均可
-import binding from "installed-apps"; // 本地: import binding from "./bindings/node/index.js"
+import binding from "installed-apps-scanner"; // 本地: import binding from "./bindings/node/index.js"
 const { scan, appsForExtension, findApp } = binding;
 
 const apps = await scan();
@@ -141,7 +141,7 @@ const chrome = await findApp("chrome");            // 按名称查询,无结果�
 | ubuntu-24.04-arm | linux-arm64-gnu | cargo-zigbuild + 冒烟 |
 
 - **Linux 兼容性**:zigbuild 产物兼容 glibc ≥ 2.17(CentOS 7+ / Ubuntu 16.04+),不受 CI runner 镜像 glibc 版本影响。
-- **发布**:tag 触发后自动执行 `napi create-npm-dirs` → `napi artifacts` → `napi pre-publish`,发布 6 个平台子包(`installed-apps-win32-x64-msvc` 等)+ 主包;使用者 `npm install installed-apps` 自动选型,无需 Rust 工具链。
+- **发布**:tag 触发后自动执行 `napi create-npm-dirs` → `napi artifacts` → `napi pre-publish`,发布 6 个平台子包(`installed-apps-scanner-win32-x64-msvc` 等)+ 主包 `installed-apps-scanner`;使用者 `npm install installed-apps-scanner` 自动选型,无需 Rust 工具链。(npm 上 `installed-apps` 名字已被占用,故包名为 `installed-apps-scanner`;Rust crate 名仍为 `installed-apps`。)
 - **前置**:仓库需配置 secret `NPM_TOKEN`(npm access token);发版前在 `bindings/node/package.json` 与 `npm/*/package.json` 对齐版本号(`npx napi version` 可同步)。
 
 ### 本地交叉构建(不依赖 CI)
