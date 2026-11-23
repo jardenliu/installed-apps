@@ -2,8 +2,13 @@
 #
 # - Every push / PR builds all six targets and runs the smoke test on the
 #   runner's own architecture.
-# - Linux targets are built with cargo-zigbuild (glibc >= 2.17, works on
-#   CentOS 7+ / Ubuntu 16.04+; independent of runner image glibc).
+# - Linux targets are built with cargo-zigbuild with an explicit glibc
+#   baseline (`<triple>.2.17`), so the artifacts run on glibc >= 2.17
+#   (CentOS 7+ / Ubuntu 16.04+, and 信创 distros such as Kylin V10 / UOS V20
+#   with glibc 2.28; independent of runner image glibc). Without the version
+#   suffix zig links against recent glibc stubs and the binary picks up
+#   GLIBC_2.29+ symbol versions (pow, log2, gettid, ...) which fail to load
+#   on older glibc.
 # - Pushing a tag `v*` publishes the platform packages + the root package to
 #   npm (requires the repository secret NPM_TOKEN).
 name: Build & Publish
@@ -81,7 +86,10 @@ jobs:
         if: matrix.settings.build == 'napi'
         run: npx napi build --platform --release --target ${{ matrix.settings.target }}
 
-      # Linux: cargo-zigbuild for a glibc 2.17 baseline.
+      # Linux: cargo-zigbuild with an explicit glibc 2.17 baseline.
+      # The `.2.17` suffix is REQUIRED: without it zig links against recent
+      # glibc stubs and the artifact references GLIBC_2.29+ symbol versions
+      # that don't load on glibc 2.28 systems (Kylin V10 / UOS V20 / 信创).
       - name: Install cargo-zigbuild
         if: matrix.settings.build == 'zig'
         run: |
@@ -91,8 +99,20 @@ jobs:
       - name: Build (cargo-zigbuild)
         if: matrix.settings.build == 'zig'
         run: |
-          cargo zigbuild --target ${{ matrix.settings.target }} -p installed-apps-node --release --manifest-path ../../Cargo.toml
+          cargo zigbuild --target ${{ matrix.settings.target }}.2.17 -p installed-apps-node --release --manifest-path ../../Cargo.toml
           cp ../../target/${{ matrix.settings.target }}/release/libinstalled_apps_node.so ${{ matrix.settings.artifact }}
+
+      # Guard against glibc-requirement regressions: the artifact must not
+      # reference any symbol version newer than GLIBC_2.28.
+      - name: Check glibc symbol versions
+        if: matrix.settings.build == 'zig'
+        run: |
+          max=$(strings ${{ matrix.settings.artifact }} | grep -oE 'GLIBC_[0-9.]+' | sort -uV | tail -1)
+          echo "max GLIBC symbol version referenced: $max"
+          if [ "$(printf '%s\n' "$max" GLIBC_2.28 | sort -V | tail -1)" != "GLIBC_2.28" ]; then
+            echo "::error::artifact requires $max > GLIBC_2.28 — will not load on glibc 2.28 (信创 Kylin/UOS)"
+            exit 1
+          fi
 
       - name: Smoke test
         if: matrix.settings.smoke

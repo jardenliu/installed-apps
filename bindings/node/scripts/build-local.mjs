@@ -6,8 +6,8 @@
 //
 //   win32-x64-msvc      native on an x64 Windows host
 //   win32-arm64-msvc    cross: needs rustup target + VS Build Tools (ARM64)
-//   linux-x64-gnu       cross: needs zig + cargo-zigbuild
-//   linux-arm64-gnu     cross: needs zig + cargo-zigbuild
+//   linux-x64-gnu       cross: needs zig + cargo-zigbuild (glibc 2.17 baseline)
+//   linux-arm64-gnu     cross: needs zig + cargo-zigbuild (glibc 2.17 baseline)
 //   darwin-*            impossible from Windows — use macOS or CI
 //
 // Usage:
@@ -21,6 +21,11 @@ import { fileURLToPath } from "node:url";
 const scriptsDir = dirname(fileURLToPath(import.meta.url));
 const pkgDir = join(scriptsDir, "..");
 const repoRoot = join(pkgDir, "..", "..");
+
+// Explicit glibc baseline for Linux targets. The `.2.17` suffix passed to
+// cargo-zigbuild is REQUIRED: without it the artifacts pick up GLIBC_2.29+
+// symbol versions and fail to load on glibc 2.28 systems (Kylin V10 / UOS).
+const LINUX_GLIBC = "2.17";
 
 const TARGETS = [
   {
@@ -110,7 +115,14 @@ for (const t of TARGETS) {
 
   const buildOk =
     t.kind === "zig"
-      ? run("cargo", ["zigbuild", "--target", t.triple, "-p", "installed-apps-node", "--release"])
+      ? run("cargo", [
+          "zigbuild",
+          "--target",
+          `${t.triple}.${LINUX_GLIBC}`,
+          "-p",
+          "installed-apps-node",
+          "--release",
+        ])
       : run("cargo", ["build", "--target", t.triple, "-p", "installed-apps-node", "--release"]);
   if (!buildOk) {
     const note =
