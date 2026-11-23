@@ -292,7 +292,7 @@ mod tests {
     #[test]
     fn uti_table_maps_html() {
         assert_eq!(uti_extensions("public.html"), &["html", "htm"]);
-        assert_eq!(uti_extensions("com.unknown.thing"), &[]);
+        assert_eq!(uti_extensions("com.unknown.thing"), &[] as &[&str]);
     }
 
     #[test]
