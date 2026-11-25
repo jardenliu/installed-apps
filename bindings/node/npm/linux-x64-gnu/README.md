@@ -1,3 +1,3 @@
-# `installed-apps-scanner-linux-x64-gnu`
+# `@totoodev/installed-apps-linux-x64-gnu`
 
-This is the **x86_64-unknown-linux-gnu** binary for `installed-apps-scanner`
+This is the **x86_64-unknown-linux-gnu** binary for `@totoodev/installed-apps`

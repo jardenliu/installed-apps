@@ -171,7 +171,7 @@ jobs:
           # repo; enforce it on every manifest in case tooling rewrote them.
           node -e '
             const fs = require("fs");
-            const repo = { type: "git", url: "git+https://github.com/jardenliu/installed-apps.git" };
+            const repo = { type: "git", url: "git+https://github.com/totoodev/installed-apps.git" };
             for (const f of ["package.json", ...fs.readdirSync("npm").map(d => "npm/" + d + "/package.json")]) {
               const j = JSON.parse(fs.readFileSync(f, "utf8"));
               j.repository = repo;

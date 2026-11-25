@@ -1,6 +1,6 @@
 {
-  "name": "installed-apps-scanner-linux-arm64-gnu",
-  "version": "0.2.1",
+  "name": "@totoodev/installed-apps-linux-arm64-gnu",
+  "version": "1.0.0",
   "cpu": [
     "arm64"
   ],
@@ -24,6 +24,6 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jardenliu/installed-apps.git"
+    "url": "git+https://github.com/totoodev/installed-apps.git"
   }
 }

@@ -1,3 +1,3 @@
-# `installed-apps-scanner-darwin-x64`
+# `@totoodev/installed-apps-darwin-x64`
 
-This is the **x86_64-apple-darwin** binary for `installed-apps-scanner`
+This is the **x86_64-apple-darwin** binary for `@totoodev/installed-apps`

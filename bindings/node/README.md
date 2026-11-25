@@ -1,4 +1,4 @@
-# installed-apps-scanner
+# @totoodev/installed-apps
 
 Cross-platform installed-application scanner for **Node.js** and **Bun** — Windows / Linux / macOS, x64 & arm64.
 
@@ -8,26 +8,26 @@ Native [napi-rs](https://napi.rs) addon powered by the [`installed-apps`](https:
 - **Match apps by file extension** — `appsForExtension("html")` lists every browser/editor that can open `.html`
 - **Look up a single app by name** — `findApp("chrome")` returns its full info
 
-> 中文文档与各平台扫描策略细节见仓库根目录 [README.md](https://github.com/jardenliu/installed-apps/blob/main/README.md)。
+> 中文文档与各平台扫描策略细节见仓库根目录 [README.md](https://github.com/totoodev/installed-apps/blob/main/README.md)。
 
 ## Install
 
 ```bash
-npm install installed-apps-scanner
+npm install @totoodev/installed-apps
 # or
-bun add installed-apps-scanner
+bun add @totoodev/installed-apps
 ```
 
 The correct prebuilt binary is selected automatically via `optionalDependencies`:
 
 | Platform package | Target |
 | --- | --- |
-| `installed-apps-scanner-win32-x64-msvc` | Windows x64 |
-| `installed-apps-scanner-win32-arm64-msvc` | Windows arm64 |
-| `installed-apps-scanner-darwin-x64` | macOS (Intel) |
-| `installed-apps-scanner-darwin-arm64` | macOS (Apple Silicon) |
-| `installed-apps-scanner-linux-x64-gnu` | Linux x64, glibc ≥ 2.17 |
-| `installed-apps-scanner-linux-arm64-gnu` | Linux arm64, glibc ≥ 2.17 |
+| `@totoodev/installed-apps-win32-x64-msvc` | Windows x64 |
+| `@totoodev/installed-apps-win32-arm64-msvc` | Windows arm64 |
+| `@totoodev/installed-apps-darwin-x64` | macOS (Intel) |
+| `@totoodev/installed-apps-darwin-arm64` | macOS (Apple Silicon) |
+| `@totoodev/installed-apps-linux-x64-gnu` | Linux x64, glibc ≥ 2.17 |
+| `@totoodev/installed-apps-linux-arm64-gnu` | Linux arm64, glibc ≥ 2.17 |
 
 Requirements: Node.js ≥ 14 or Bun (Bun supports Node-API).
 
@@ -35,11 +35,11 @@ Requirements: Node.js ≥ 14 or Bun (Bun supports Node-API).
 
 ```js
 // ESM — Node.js and Bun
-import binding from "installed-apps-scanner";
+import binding from "@totoodev/installed-apps";
 const { scan, appsForExtension, findApp } = binding;
 
 // CJS
-// const { scan, appsForExtension, findApp } = require("installed-apps-scanner");
+// const { scan, appsForExtension, findApp } = require("@totoodev/installed-apps");
 
 // All installed applications
 const apps = await scan();
@@ -134,7 +134,7 @@ const dataUri = `data:image/png;base64,${app.icon.base64}`;
 Only needed for development — the published package ships prebuilt binaries. Requires the [Rust toolchain](https://rustup.rs/).
 
 ```bash
-git clone https://github.com/jardenliu/installed-apps.git
+git clone https://github.com/totoodev/installed-apps.git
 cd installed-apps/bindings/node
 npm install        # installs @napi-rs/cli
 npm run build      # produces installed-apps.<platform>-<arch>[-<libc>].node

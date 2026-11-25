@@ -104,7 +104,7 @@ node test.mjs      # 冒烟测试(或 bun test.mjs)
 
 ```js
 // Node.js (CJS/ESM) 与 Bun 均可
-import binding from "installed-apps-scanner"; // 本地: import binding from "./bindings/node/index.js"
+import binding from "@totoodev/installed-apps"; // 本地: import binding from "./bindings/node/index.js"
 const { scan, appsForExtension, findApp } = binding;
 
 const apps = await scan();
@@ -141,10 +141,10 @@ const chrome = await findApp("chrome");            // 按名称查询,无结果�
 | ubuntu-24.04-arm | linux-arm64-gnu | cargo-zigbuild + 冒烟 |
 
 - **Linux 兼容性**:zigbuild 产物兼容 glibc ≥ 2.17(CentOS 7+ / Ubuntu 16.04+),不受 CI runner 镜像 glibc 版本影响。
-- **发布**:tag 触发后自动执行 `napi create-npm-dirs` → `napi artifacts` → `napi pre-publish`,发布 6 个平台子包(`installed-apps-scanner-win32-x64-msvc` 等)+ 主包 `installed-apps-scanner`;使用者 `npm install installed-apps-scanner` 自动选型,无需 Rust 工具链。(npm 上 `installed-apps` 名字已被占用,故包名为 `installed-apps-scanner`;Rust crate 名仍为 `installed-apps`。)
+- **发布**:tag 触发后自动执行 `napi create-npm-dirs` → `napi artifacts` → `napi pre-publish`,发布 6 个平台子包(`@totoodev/installed-apps-win32-x64-msvc` 等)+ 主包 `@totoodev/installed-apps`;使用者 `npm install @totoodev/installed-apps` 自动选型,无需 Rust 工具链。(npm 包为 scope 包 `@totoodev/installed-apps`;Rust crate 名仍为 `installed-apps`。)
 - **发布鉴权(npm Trusted Publishing / OIDC,长期免 token)**:
   1. **首发 v0.1.0**:新包在 npm 上没有 Settings 页,无法预配 Trusted Publisher,首版需一次性 token——创建 Granular Access Token(勾选 **"Bypass two-factor authentication"**),存入仓库 secret `NPM_TOKEN`,打 tag 发布(工作流自动识别:有 token 走 token,无 token 走 OIDC);
-  2. 发布成功后立即在 npmjs.com 为**每个包**(主包 + 6 个平台子包)配置 Trusted Publisher:包页 → **Settings → Trusted publishing → GitHub Actions**,填 owner `jardenliu`、repo `installed-apps`、workflow `build.yml`(含扩展名);
+  2. 发布成功后立即在 npmjs.com 为**每个包**(主包 + 6 个平台子包)配置 Trusted Publisher:包页 → **Settings → Trusted publishing → GitHub Actions**,填 owner `totoodev`、repo `installed-apps`、workflow `build.yml`(含扩展名);
   3. 配置后 **2 天内**发任意新版本(如 v0.1.1)完成绑定,然后**删除 `NPM_TOKEN` secret** —— 之后所有发布走纯 OIDC,无需任何 token;
   4. 加固:Settings → Publishing access 勾选 **"Require two-factor authentication and disallow tokens"**;Trusted Publishing 发布会**自动生成 provenance 构建证明**;`package.json` 的 `repository.url` 必须与 GitHub 仓库一致(已内置,CI 也会强制写入)。
 - 发版前在 `bindings/node/package.json` 与 `npm/*/package.json` 对齐版本号(`npx napi version` 可同步)。

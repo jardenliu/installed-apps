@@ -1,6 +1,6 @@
 {
-  "name": "installed-apps-scanner",
-  "version": "0.2.1",
+  "name": "@totoodev/installed-apps",
+  "version": "1.0.0",
   "description": "Cross-platform installed application scanner (Windows / Linux / macOS) with file-association lookup and PNG icons — Node.js / Bun bindings",
   "main": "index.js",
   "types": "index.d.ts",
@@ -29,15 +29,15 @@
       "x86_64-unknown-linux-gnu",
       "aarch64-unknown-linux-gnu"
     ],
-    "packageName": "installed-apps-scanner"
+    "packageName": "@totoodev/installed-apps"
   },
   "optionalDependencies": {
-    "installed-apps-scanner-win32-x64-msvc": "0.2.1",
-    "installed-apps-scanner-win32-arm64-msvc": "0.2.1",
-    "installed-apps-scanner-darwin-x64": "0.2.1",
-    "installed-apps-scanner-darwin-arm64": "0.2.1",
-    "installed-apps-scanner-linux-x64-gnu": "0.2.1",
-    "installed-apps-scanner-linux-arm64-gnu": "0.2.1"
+    "@totoodev/installed-apps-win32-x64-msvc": "1.0.0",
+    "@totoodev/installed-apps-win32-arm64-msvc": "1.0.0",
+    "@totoodev/installed-apps-darwin-x64": "1.0.0",
+    "@totoodev/installed-apps-darwin-arm64": "1.0.0",
+    "@totoodev/installed-apps-linux-x64-gnu": "1.0.0",
+    "@totoodev/installed-apps-linux-arm64-gnu": "1.0.0"
   },
   "publishConfig": {
     "access": "public"
@@ -47,6 +47,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jardenliu/installed-apps.git"
+    "url": "git+https://github.com/totoodev/installed-apps.git"
   }
 }
